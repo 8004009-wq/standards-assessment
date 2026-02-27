@@ -170,9 +170,9 @@ RATING_SCORES = {
 }
 
 RATING_LABELS = {
-    "compliant": "符合",
-    "partial": "部分符合",
-    "non_compliant": "不符合",
+    "compliant": "满足",
+    "partial": "部分满足",
+    "non_compliant": "不满足",
     "not_applicable": "不适用"
 }
 
@@ -181,11 +181,10 @@ def get_djcp_data_template():
     """网络安全等级保护数据安全基本要求模板（三级系统专用）"""
     return {
         "id": "djcp_data",
-        "name": "网络安全等级保护数据安全基本要求（第三级）",
-        "standard_no": "GB/T 22239-2019 数据安全部分",
-        "version": "2019",
-        "description": "网络安全等级保护 2.0 数据安全基本要求 - 第三级（监督保护级），适用于关键信息基础设施和重要信息系统",
-        "target_level": "三级",
+        "name": "信息安全技术 网络安全等级保护数据安全基本要求（第三级）",
+        "standard_no": "GA/T 2380-2026",
+        "version": "2026",
+        "description": "公共安全行业标准 - 网络安全等级保护数据安全基本要求 第三级（监督保护级），适用于关键信息基础设施和重要信息系统。评估选项：满足、部分满足、不满足、不适用",
         "dimensions": [
             {"id": "data_classify", "name": "数据分类分级", "weight": 0.15},
             {"id": "data_collect", "name": "数据采集安全", "weight": 0.15},
@@ -195,10 +194,6 @@ def get_djcp_data_template():
             {"id": "data_share", "name": "数据交换共享", "weight": 0.15},
             {"id": "data_delete", "name": "数据销毁安全", "weight": 0.10},
         ],
-        "compliance_requirement": {
-            "min_rate": 90,
-            "description": "三级系统合规率需达到 90% 以上，关键项必须全部符合"
-        },
         "items": [
             # ==================== 数据分类分级 ====================
             {"id": "djcp-data-class-01", "dimension": "data_classify", "level": "二级", "content": "是否建立数据分类分级管理制度", "max_score": 5},
