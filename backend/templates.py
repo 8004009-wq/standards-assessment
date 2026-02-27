@@ -170,9 +170,9 @@ RATING_SCORES = {
 }
 
 RATING_LABELS = {
-    "compliant": "满足",
-    "partial": "部分满足",
-    "non_compliant": "不满足",
+    "compliant": "符合",
+    "partial": "部分符合",
+    "non_compliant": "不符合",
     "not_applicable": "不适用"
 }
 
