@@ -10,6 +10,7 @@ def get_default_templates():
         get_dsmm_template(),
         get_djcp_template(),
         get_grxxb_template(),
+        get_djcp_data_template(),  # 等保数据安全基本要求
     ]
 
 
@@ -174,3 +175,83 @@ RATING_LABELS = {
     "non_compliant": "不符合",
     "not_applicable": "不适用"
 }
+
+
+def get_djcp_data_template():
+    """网络安全等级保护数据安全基本要求模板"""
+    return {
+        "id": "djcp_data",
+        "name": "网络安全等级保护数据安全基本要求",
+        "standard_no": "GB/T 22239-2019 数据安全部分",
+        "version": "2019",
+        "description": "网络安全等级保护 2.0 数据安全基本要求，涵盖数据全生命周期安全保护，适用于各等级信息系统",
+        "dimensions": [
+            {"id": "data_classify", "name": "数据分类分级", "weight": 0.15},
+            {"id": "data_collect", "name": "数据采集安全", "weight": 0.15},
+            {"id": "data_transfer", "name": "数据传输安全", "weight": 0.15},
+            {"id": "data_store", "name": "数据存储安全", "weight": 0.15},
+            {"id": "data_use", "name": "数据使用安全", "weight": 0.15},
+            {"id": "data_share", "name": "数据交换共享", "weight": 0.15},
+            {"id": "data_delete", "name": "数据销毁安全", "weight": 0.10},
+        ],
+        "items": [
+            # ==================== 数据分类分级 ====================
+            {"id": "djcp-data-class-01", "dimension": "data_classify", "level": "二级", "content": "是否建立数据分类分级管理制度", "max_score": 5},
+            {"id": "djcp-data-class-02", "dimension": "data_classify", "level": "二级", "content": "是否识别重要数据和核心数据", "max_score": 5},
+            {"id": "djcp-data-class-03", "dimension": "data_classify", "level": "二级", "content": "是否制定数据分类分级指南", "max_score": 5},
+            {"id": "djcp-data-class-04", "dimension": "data_classify", "level": "三级", "content": "是否建立数据分类分级动态调整机制", "max_score": 5},
+            {"id": "djcp-data-class-05", "dimension": "data_classify", "level": "三级", "content": "是否对不同级别数据实施差异化保护", "max_score": 5},
+            
+            # ==================== 数据采集安全 ====================
+            {"id": "djcp-data-coll-01", "dimension": "data_collect", "level": "二级", "content": "是否明确数据采集目的和范围", "max_score": 5},
+            {"id": "djcp-data-coll-02", "dimension": "data_collect", "level": "二级", "content": "是否遵循最小必要原则采集数据", "max_score": 5},
+            {"id": "djcp-data-coll-03", "dimension": "data_collect", "level": "二级", "content": "是否验证数据来源的合法性和真实性", "max_score": 5},
+            {"id": "djcp-data-coll-04", "dimension": "data_collect", "level": "三级", "content": "是否对采集的个人信息征得用户同意", "max_score": 5},
+            {"id": "djcp-data-coll-05", "dimension": "data_collect", "level": "三级", "content": "是否建立采集数据质量校验机制", "max_score": 5},
+            {"id": "djcp-data-coll-06", "dimension": "data_collect", "level": "三级", "content": "是否对批量采集行为进行安全评估", "max_score": 5},
+            
+            # ==================== 数据传输安全 ====================
+            {"id": "djcp-data-trans-01", "dimension": "data_transfer", "level": "二级", "content": "是否对敏感数据传输进行加密", "max_score": 5},
+            {"id": "djcp-data-trans-02", "dimension": "data_transfer", "level": "二级", "content": "是否采用安全的传输协议 (如 HTTPS/TLS)", "max_score": 5},
+            {"id": "djcp-data-trans-03", "dimension": "data_transfer", "level": "二级", "content": "是否验证通信双方身份", "max_score": 5},
+            {"id": "djcp-data-trans-04", "dimension": "data_transfer", "level": "三级", "content": "是否对重要数据实施端到端加密", "max_score": 5},
+            {"id": "djcp-data-trans-05", "dimension": "data_transfer", "level": "三级", "content": "是否建立数据传输完整性校验机制", "max_score": 5},
+            {"id": "djcp-data-trans-06", "dimension": "data_transfer", "level": "三级", "content": "是否对跨境数据传输进行安全评估", "max_score": 5},
+            
+            # ==================== 数据存储安全 ====================
+            {"id": "djcp-data-store-01", "dimension": "data_store", "level": "二级", "content": "是否对存储的敏感数据进行加密", "max_score": 5},
+            {"id": "djcp-data-store-02", "dimension": "data_store", "level": "二级", "content": "是否建立数据备份机制", "max_score": 5},
+            {"id": "djcp-data-store-03", "dimension": "data_store", "level": "二级", "content": "是否定期测试数据恢复能力", "max_score": 5},
+            {"id": "djcp-data-store-04", "dimension": "data_store", "level": "三级", "content": "是否对重要数据实施异地备份", "max_score": 5},
+            {"id": "djcp-data-store-05", "dimension": "data_store", "level": "三级", "content": "是否建立存储介质安全管理制度", "max_score": 5},
+            {"id": "djcp-data-store-06", "dimension": "data_store", "level": "三级", "content": "是否对数据库实施访问控制和审计", "max_score": 5},
+            {"id": "djcp-data-store-07", "dimension": "data_store", "level": "三级", "content": "是否设定数据存储期限并定期清理", "max_score": 5},
+            
+            # ==================== 数据使用安全 ====================
+            {"id": "djcp-data-use-01", "dimension": "data_use", "level": "二级", "content": "是否建立数据访问权限管理制度", "max_score": 5},
+            {"id": "djcp-data-use-02", "dimension": "data_use", "level": "二级", "content": "是否实施数据访问权限审批", "max_score": 5},
+            {"id": "djcp-data-use-03", "dimension": "data_use", "level": "二级", "content": "是否遵循权限最小化原则", "max_score": 5},
+            {"id": "djcp-data-use-04", "dimension": "data_use", "level": "三级", "content": "是否对重要数据操作进行审计记录", "max_score": 5},
+            {"id": "djcp-data-use-05", "dimension": "data_use", "level": "三级", "content": "是否对敏感数据展示进行脱敏处理", "max_score": 5},
+            {"id": "djcp-data-use-06", "dimension": "data_use", "level": "三级", "content": "是否建立数据使用安全监控机制", "max_score": 5},
+            {"id": "djcp-data-use-07", "dimension": "data_use", "level": "三级", "content": "是否对批量导出行为进行审批和审计", "max_score": 5},
+            {"id": "djcp-data-use-08", "dimension": "data_use", "level": "三级", "content": "是否建立数据使用安全事件应急响应机制", "max_score": 5},
+            
+            # ==================== 数据交换共享 ====================
+            {"id": "djcp-data-share-01", "dimension": "data_share", "level": "二级", "content": "是否建立数据共享安全管理制度", "max_score": 5},
+            {"id": "djcp-data-share-02", "dimension": "data_share", "level": "二级", "content": "是否与数据接收方签订安全协议", "max_score": 5},
+            {"id": "djcp-data-share-03", "dimension": "data_share", "level": "二级", "content": "是否验证数据接收方的安全保护能力", "max_score": 5},
+            {"id": "djcp-data-share-04", "dimension": "data_share", "level": "三级", "content": "是否对数据共享进行安全影响评估", "max_score": 5},
+            {"id": "djcp-data-share-05", "dimension": "data_share", "level": "三级", "content": "是否对共享数据进行分类分级标识", "max_score": 5},
+            {"id": "djcp-data-share-06", "dimension": "data_share", "level": "三级", "content": "是否建立数据共享审计和追溯机制", "max_score": 5},
+            {"id": "djcp-data-share-07", "dimension": "data_share", "level": "三级", "content": "是否对数据转让行为进行审批", "max_score": 5},
+            
+            # ==================== 数据销毁安全 ====================
+            {"id": "djcp-data-del-01", "dimension": "data_delete", "level": "二级", "content": "是否建立数据销毁管理制度", "max_score": 5},
+            {"id": "djcp-data-del-02", "dimension": "data_delete", "level": "二级", "content": "是否对存储介质进行安全销毁", "max_score": 5},
+            {"id": "djcp-data-del-03", "dimension": "data_delete", "level": "二级", "content": "是否记录数据销毁过程", "max_score": 5},
+            {"id": "djcp-data-del-04", "dimension": "data_delete", "level": "三级", "content": "是否采用不可恢复的销毁方式", "max_score": 5},
+            {"id": "djcp-data-del-05", "dimension": "data_delete", "level": "三级", "content": "是否对数据销毁进行监督和验证", "max_score": 5},
+            {"id": "djcp-data-del-06", "dimension": "data_delete", "level": "三级", "content": "是否对委托销毁进行安全管控", "max_score": 5},
+        ]
+    }
