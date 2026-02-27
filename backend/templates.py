@@ -10,7 +10,8 @@ def get_default_templates():
         get_dsmm_template(),
         get_djcp_template(),
         get_grxxb_template(),
-        get_djcp_data_template(),  # 等保数据安全基本要求
+        get_djcp_data_level1_template(),  # 等保数据安全第一级
+        get_djcp_data_template(),  # 等保数据安全第三级
     ]
 
 
@@ -175,6 +176,53 @@ RATING_LABELS = {
     "non_compliant": "不符合",
     "not_applicable": "不适用"
 }
+
+
+def get_djcp_data_level1_template():
+    """等保数据安全第一级系统评估模板（自主保护级）"""
+    return {
+        "id": "djcp_data_level1",
+        "name": "信息安全技术 网络安全等级保护数据安全基本要求（第一级）",
+        "standard_no": "GA/T 2380-2026",
+        "version": "2026",
+        "description": "公共安全行业标准 - 网络安全等级保护数据安全基本要求 第一级（自主保护级），适用于一般信息系统。包含 4.1-4.8 共 9 条基本要求。",
+        "dimensions": [
+            {"id": "data_classify", "name": "数据分类分级", "weight": 0.15},
+            {"id": "data_collect", "name": "数据采集安全", "weight": 0.10},
+            {"id": "data_transfer", "name": "数据传输安全", "weight": 0.15},
+            {"id": "data_store", "name": "数据存储安全", "weight": 0.15},
+            {"id": "data_use", "name": "数据使用安全", "weight": 0.15},
+            {"id": "data_share", "name": "数据交换共享", "weight": 0.15},
+            {"id": "data_delete", "name": "数据销毁安全", "weight": 0.15},
+        ],
+        "items": [
+            # 4.1 数据分类分级
+            {"id": "djcp-data-l1-4.1", "dimension": "data_classify", "level": "一级", "content": "4.1 应建立数据分类分级管理制度，明确数据分类分级方法和管理要求", "max_score": 5},
+            
+            # 4.2 数据采集安全
+            {"id": "djcp-data-l1-4.2", "dimension": "data_collect", "level": "一级", "content": "4.2 应明确数据采集的目的、方式和范围，遵循合法、正当、必要的原则", "max_score": 5},
+            
+            # 4.3 数据传输安全
+            {"id": "djcp-data-l1-4.3-a", "dimension": "data_transfer", "level": "一级", "content": "4.3 a) 应在重要数据传输前进行加密处理", "max_score": 5},
+            {"id": "djcp-data-l1-4.3-b", "dimension": "data_transfer", "level": "一级", "content": "4.3 b) 应采用安全的传输协议进行数据传输", "max_score": 5},
+            
+            # 4.4 数据存储安全
+            {"id": "djcp-data-l1-4.4-a", "dimension": "data_store", "level": "一级", "content": "4.4 a) 应对重要数据存储进行加密保护", "max_score": 5},
+            {"id": "djcp-data-l1-4.4-b", "dimension": "data_store", "level": "一级", "content": "4.4 b) 应建立数据备份机制，定期备份重要数据", "max_score": 5},
+            
+            # 4.5 数据使用安全
+            {"id": "djcp-data-l1-4.5", "dimension": "data_use", "level": "一级", "content": "4.5 应建立数据访问控制机制，根据业务需要分配数据访问权限", "max_score": 5},
+            
+            # 4.6 数据交换共享安全
+            {"id": "djcp-data-l1-4.6", "dimension": "data_share", "level": "一级", "content": "4.6 应在数据交换共享前与接收方签订安全协议，明确安全责任和保护要求", "max_score": 5},
+            
+            # 4.7 数据销毁安全
+            {"id": "djcp-data-l1-4.7", "dimension": "data_delete", "level": "一级", "content": "4.7 应建立数据销毁管理制度，采用技术手段确保数据无法被恢复", "max_score": 5},
+            
+            # 4.8 安全事件处置
+            {"id": "djcp-data-l1-4.8", "dimension": "data_use", "level": "一级", "content": "4.8 应建立数据安全事件应急处置机制，及时响应和处置数据安全事件", "max_score": 5},
+        ]
+    }
 
 
 def get_djcp_data_template():
