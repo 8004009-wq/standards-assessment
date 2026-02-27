@@ -1,5 +1,14 @@
 # 标准自评估系统 (Standards Self-Assessment System)
 
+[![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-在线访问-blue)](https://8004009-wq.github.io/standards-assessment/)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+
+## 🌐 在线访问
+
+**GitHub Pages 演示版**: https://8004009-wq.github.io/standards-assessment/
+
+> 💡 演示版使用浏览器 localStorage 存储数据，无需后端即可体验完整功能。数据仅保存在本地浏览器中。
+
 ## 📋 项目概述
 
 一个通用的标准自评估平台，支持多种网络安全、数据安全标准的在线评估、评分和报告生成。
