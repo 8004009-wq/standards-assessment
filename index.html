@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>标准自评估系统</title>
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Element Plus -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <script src="https://unpkg.com/element-plus"></script>
+    <script src="https://unpkg.com/element-plus/dist/locale/zh-cn.min.js"></script>
+    <!-- ECharts -->
+    <script src="https://unpkg.com/echarts/dist/echarts.min.js"></script>
+    <!-- 图标 -->
+    <link rel="stylesheet" href="https://unpkg.com/@element-plus/icons-vue">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+        }
+        .app-container {
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .header p {
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        .main-content {
+            padding: 30px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            padding: 20px;
+            border-bottom: 1px solid #ebeef5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .stat-card {
+            text-align: center;
+            padding: 30px;
+        }
+        .stat-number {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            color: #909399;
+            margin-top: 10px;
+        }
+        .template-card {
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .template-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        .template-card.selected {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+        .assessment-item {
+            padding: 15px;
+            border: 1px solid #ebeef5;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            background: #fafafa;
+        }
+        .assessment-item:hover {
+            background: #f5f7fa;
+        }
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .item-content {
+            color: #333;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .item-meta {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .tag-dimension {
+            background: #ecf5ff;
+            color: #409eff;
+        }
+        .tag-level {
+            background: #f4f4f5;
+            color: #909399;
+        }
+        .rating-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .chart-container {
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        .sidebar {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 350px;
+            height: 100vh;
+            background: white;
+            box-shadow: -2px 0 12px rgba(0,0,0,0.1);
+            transform: translateX(100%);
+            transition: transform 0.3s;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #ebeef5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+        }
+        .sidebar-body {
+            padding: 20px;
+        }
+        .progress-bar {
+            height: 8px;
+            background: #ebeef5;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #909399;
+        }
+        .empty-state .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        .status-draft { background: #f4f4f5; color: #909399; }
+        .status-in_progress { background: #ecf5ff; color: #409eff; }
+        .status-completed { background: #f0f9eb; color: #67c23a; }
+        .evidence-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #dcdfe6;
+        }
+        .evidence-input {
+            width: 100%;
+            min-height: 80px;
+        }
+        @media (max-width: 768px) {
+            .header { padding: 15px 20px; }
+            .main-content { padding: 20px; }
+            .sidebar { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="app-container">
+            <!-- 头部 -->
+            <div class="header">
+                <h1>🛡️ 标准自评估系统</h1>
+                <p>网络安全 · 数据安全 · 合规评估</p>
+            </div>
+
+            <!-- 主内容 -->
+            <div class="main-content">
+                <!-- 视图切换 -->
+                <el-tabs v-model="currentView" type="card" @tab-change="onViewChange">
+                    <el-tab-pane label="评估任务" name="tasks"></el-tab-pane>
+                    <el-tab-pane label="新建评估" name="create"></el-tab-pane>
+                    <el-tab-pane label="标准模板" name="templates"></el-tab-pane>
+                    <el-tab-pane label="统计分析" name="stats"></el-tab-pane>
+                </el-tabs>
+
+                <!-- 任务列表视图 -->
+                <div v-if="currentView === 'tasks'" class="card">
+                    <div class="card-header">
+                        <h3>我的评估任务</h3>
+                        <el-button type="primary" @click="currentView = 'create'">+ 新建评估</el-button>
+                    </div>
+                    <div class="card-body">
+                        <el-table :data="tasks" style="width: 100%" v-if="tasks.length > 0">
+                            <el-table-column prop="name" label="任务名称" min-width="200"></el-table-column>
+                            <el-table-column prop="template_name" label="评估标准" width="180"></el-table-column>
+                            <el-table-column prop="organization" label="被评估组织" width="150"></el-table-column>
+                            <el-table-column prop="compliance_rate" label="合规率" width="100">
+                                <template #default="scope">
+                                    <el-tag :type="getComplianceType(scope.row.compliance_rate)">
+                                        {{ scope.row.compliance_rate }}%
+                                    </el-tag>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="状态" width="100">
+                                <template #default="scope">
+                                    <span class="status-badge" :class="'status-' + scope.row.status">
+                                        {{ getStatusLabel(scope.row.status) }}
+                                    </span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="操作" width="200">
+                                <template #default="scope">
+                                    <el-button size="small" @click="openTask(scope.row)">继续评估</el-button>
+                                    <el-button size="small" type="danger" @click="deleteTask(scope.row.id)">删除</el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                        <div v-else class="empty-state">
+                            <div class="icon">📋</div>
+                            <p>暂无评估任务</p>
+                            <el-button type="primary" style="margin-top: 15px" @click="currentView = 'create'">创建第一个评估</el-button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 创建评估视图 -->
+                <div v-if="currentView === 'create'" class="card">
+                    <div class="card-header">
+                        <h3>创建新评估</h3>
+                    </div>
+                    <div class="card-body">
+                        <el-form :model="newTask" label-width="100px" style="max-width: 600px">
+                            <el-form-item label="任务名称" required>
+                                <el-input v-model="newTask.name" placeholder="请输入评估任务名称"></el-input>
+                            </el-form-item>
+                            <el-form-item label="被评估组织">
+                                <el-input v-model="newTask.organization" placeholder="请输入组织名称"></el-input>
+                            </el-form-item>
+                            <el-form-item label="评估标准" required>
+                                <el-select v-model="newTask.template_id" placeholder="请选择评估标准" style="width: 100%">
+                                    <el-option
+                                        v-for="tpl in templates"
+                                        :key="tpl.id"
+                                        :label="tpl.name + ' (' + tpl.standard_no + ')'"
+                                        :value="tpl.id"
+                                    ></el-option>
+                                </el-select>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button type="primary" @click="createTask" :loading="creating">创建评估</el-button>
+                                <el-button @click="currentView = 'tasks'">取消</el-button>
+                            </el-form-item>
+                        </el-form>
+
+                        <!-- 模板说明 -->
+                        <div v-if="newTask.template_id" style="margin-top: 30px; padding: 20px; background: #f5f7fa; border-radius: 6px;">
+                            <h4>📖 关于此标准</h4>
+                            <p style="margin-top: 10px; color: #666">{{ selectedTemplateDescription }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模板列表视图 -->
+                <div v-if="currentView === 'templates'" class="card">
+                    <div class="card-header">
+                        <h3>标准模板库</h3>
+                    </div>
+                    <div class="card-body">
+                        <el-row :gutter="20">
+                            <el-col :xs="24" :sm="12" :md="8" v-for="tpl in templates" :key="tpl.id">
+                                <div class="card template-card" @click="selectTemplate(tpl)">
+                                    <div class="card-body">
+                                        <h4 style="color: #667eea">{{ tpl.name }}</h4>
+                                        <p style="color: #909399; font-size: 14px; margin: 10px 0">{{ tpl.standard_no }}</p>
+                                        <p style="color: #666; font-size: 13px; line-height: 1.5">{{ tpl.description }}</p>
+                                        <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
+                                            <el-tag size="small">{{ tpl.item_count }} 个评估项</el-tag>
+                                            <el-button size="small" type="primary" @click.stop="newTask.template_id = tpl.id; currentView = 'create'">使用此模板</el-button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </el-col>
+                        </el-row>
+                    </div>
+                </div>
+
+                <!-- 统计分析视图 -->
+                <div v-if="currentView === 'stats'" class="card">
+                    <div class="card-header">
+                        <h3>评估统计</h3>
+                    </div>
+                    <div class="card-body">
+                        <el-row :gutter="20" style="margin-bottom: 30px;">
+                            <el-col :span="8">
+                                <div class="card stat-card">
+                                    <div class="stat-number">{{ stats.total_tasks }}</div>
+                                    <div class="stat-label">总任务数</div>
+                                </div>
+                            </el-col>
+                            <el-col :span="8">
+                                <div class="card stat-card">
+                                    <div class="stat-number" style="color: #67c23a">{{ stats.completed_tasks }}</div>
+                                    <div class="stat-label">已完成</div>
+                                </div>
+                            </el-col>
+                            <el-col :span="8">
+                                <div class="card stat-card">
+                                    <div class="stat-number" style="color: #e6a23c">{{ stats.in_progress_tasks }}</div>
+                                    <div class="stat-label">进行中</div>
+                                </div>
+                            </el-col>
+                        </el-row>
+
+                        <div v-if="currentTaskResult" style="margin-top: 30px;">
+                            <h4>当前评估分析</h4>
+                            <div id="radarChart" class="chart-container"></div>
+                            <div id="pieChart" class="chart-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 评估详情侧边栏 -->
+        <div class="sidebar" :class="{ open: sidebarOpen }">
+            <div class="sidebar-header">
+                <h3>{{ currentTask?.name }}</h3>
+                <el-button icon="Close" circle @click="closeSidebar"></el-button>
+            </div>
+            <div class="sidebar-body">
+                <!-- 进度 -->
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>评估进度</span>
+                        <span>{{ currentTask?.compliance_rate }}%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" :style="{ width: (currentTask?.compliance_rate || 0) + '%' }"></div>
+                    </div>
+                </div>
+
+                <!-- 评估项列表 -->
+                <div v-for="(item, index) in currentTaskItems" :key="item.id" class="assessment-item">
+                    <div class="item-header">
+                        <span style="font-weight: 600; color: #333;">#{{ index + 1 }}</span>
+                        <el-tag size="small" :type="getRatingType(item.rating)">{{ item.rating_label }}</el-tag>
+                    </div>
+                    <div class="item-content">{{ item.control_item }}</div>
+                    <div class="item-meta">
+                        <el-tag size="small" class="tag-dimension">{{ item.dimension }}</el-tag>
+                        <el-tag size="small" class="tag-level">{{ item.level }}</el-tag>
+                    </div>
+                    <div class="rating-buttons" style="margin-top: 15px;">
+                        <el-radio-group v-model="item.rating" size="small" @change="saveItemRating(item)">
+                            <el-radio-button label="compliant">符合</el-radio-button>
+                            <el-radio-button label="partial">部分符合</el-radio-button>
+                            <el-radio-button label="non_compliant">不符合</el-radio-button>
+                            <el-radio-button label="not_applicable">不适用</el-radio-button>
+                        </el-radio-group>
+                    </div>
+                    <div class="evidence-section">
+                        <el-input
+                            v-model="item.evidence"
+                            type="textarea"
+                            :rows="2"
+                            placeholder="证据描述/备注..."
+                            @blur="saveItemRating(item)"
+                        ></el-input>
+                    </div>
+                </div>
+
+                <div v-if="currentTaskItems.length === 0" class="empty-state">
+                    <p>暂无评估项</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+
+        const API_BASE = 'http://localhost:8001/api';
+
+        const app = createApp({
+            setup() {
+                // 状态
+                const currentView = ref('tasks');
+                const sidebarOpen = ref(false);
+                const tasks = ref([]);
+                const templates = ref([]);
+                const currentTask = ref(null);
+                const currentTaskItems = ref([]);
+                const currentTaskResult = ref(null);
+                const creating = ref(false);
+                const stats = ref({ total_tasks: 0, completed_tasks: 0, in_progress_tasks: 0 });
+
+                const newTask = ref({
+                    name: '',
+                    organization: '',
+                    template_id: ''
+                });
+
+                // 计算属性
+                const selectedTemplateDescription = computed(() => {
+                    const tpl = templates.value.find(t => t.id === newTask.value.template_id);
+                    return tpl ? tpl.description : '';
+                });
+
+                // 方法
+                const fetchTasks = async () => {
+                    try {
+                        const res = await fetch(`${API_BASE}/tasks`);
+                        const data = await res.json();
+                        tasks.value = data;
+                    } catch (e) {
+                        console.error('获取任务失败:', e);
+                    }
+                };
+
+                const fetchTemplates = async () => {
+                    try {
+                        const res = await fetch(`${API_BASE}/templates`);
+                        const data = await res.json();
+                        templates.value = data;
+                    } catch (e) {
+                        console.error('获取模板失败:', e);
+                    }
+                };
+
+                const fetchStats = async () => {
+                    try {
+                        const res = await fetch(`${API_BASE}/stats`);
+                        const data = await res.json();
+                        stats.value = data;
+                    } catch (e) {
+                        console.error('获取统计失败:', e);
+                    }
+                };
+
+                const createTask = async () => {
+                    if (!newTask.value.name || !newTask.value.template_id) {
+                        ElementPlus.ElMessage.warning('请填写任务名称和评估标准');
+                        return;
+                    }
+                    creating.value = true;
+                    try {
+                        const res = await fetch(`${API_BASE}/tasks`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(newTask.value)
+                        });
+                        const data = await res.json();
+                        if (res.ok) {
+                            ElementPlus.ElMessage.success('评估任务创建成功');
+                            newTask.value = { name: '', organization: '', template_id: '' };
+                            currentView.value = 'tasks';
+                            fetchTasks();
+                        } else {
+                            ElementPlus.ElMessage.error(data.detail || '创建失败');
+                        }
+                    } catch (e) {
+                        ElementPlus.ElMessage.error('网络错误');
+                    } finally {
+                        creating.value = false;
+                    }
+                };
+
+                const openTask = async (task) => {
+                    try {
+                        const res = await fetch(`${API_BASE}/tasks/${task.id}`);
+                        const data = await res.json();
+                        currentTask.value = data;
+                        currentTaskItems.value = data.items || [];
+                        sidebarOpen.value = true;
+                        
+                        // 获取结果分析
+                        fetchTaskResult(task.id);
+                    } catch (e) {
+                        ElementPlus.ElMessage.error('获取任务详情失败');
+                    }
+                };
+
+                const fetchTaskResult = async (taskId) => {
+                    try {
+                        const res = await fetch(`${API_BASE}/tasks/${taskId}/result`);
+                        const data = await res.json();
+                        currentTaskResult.value = data;
+                        renderCharts(data);
+                    } catch (e) {
+                        console.error('获取结果失败:', e);
+                    }
+                };
+
+                const saveItemRating = async (item) => {
+                    try {
+                        await fetch(`${API_BASE}/tasks/${currentTask.value.id}/items/${item.id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                rating: item.rating,
+                                evidence: item.evidence,
+                                remarks: item.remarks
+                            })
+                        });
+                        // 刷新任务数据
+                        const res = await fetch(`${API_BASE}/tasks/${currentTask.value.id}`);
+                        const data = await res.json();
+                        currentTask.value = data;
+                        currentTaskItems.value = data.items;
+                        fetchTaskResult(currentTask.value.id);
+                        fetchTasks();
+                    } catch (e) {
+                        console.error('保存失败:', e);
+                    }
+                };
+
+                const deleteTask = async (taskId) => {
+                    ElementPlus.ElMessageBox.confirm('确定要删除此评估任务吗？', '确认删除', {
+                        type: 'warning'
+                    }).then(async () => {
+                        try {
+                            await fetch(`${API_BASE}/tasks/${taskId}`, { method: 'DELETE' });
+                            ElementPlus.ElMessage.success('删除成功');
+                            fetchTasks();
+                        } catch (e) {
+                            ElementPlus.ElMessage.error('删除失败');
+                        }
+                    });
+                };
+
+                const closeSidebar = () => {
+                    sidebarOpen.value = false;
+                    currentTask.value = null;
+                    currentTaskItems.value = [];
+                };
+
+                const selectTemplate = (tpl) => {
+                    newTask.value.template_id = tpl.id;
+                };
+
+                const onViewChange = (view) => {
+                    if (view === 'stats' && currentTask.value) {
+                        fetchTaskResult(currentTask.value.id);
+                    }
+                };
+
+                const getComplianceType = (rate) => {
+                    if (rate >= 80) return 'success';
+                    if (rate >= 60) return 'warning';
+                    return 'danger';
+                };
+
+                const getStatusLabel = (status) => {
+                    const labels = {
+                        draft: '草稿',
+                        in_progress: '进行中',
+                        completed: '已完成'
+                    };
+                    return labels[status] || status;
+                };
+
+                const getRatingType = (rating) => {
+                    const types = {
+                        compliant: 'success',
+                        partial: 'warning',
+                        non_compliant: 'danger',
+                        not_applicable: 'info'
+                    };
+                    return types[rating] || 'info';
+                };
+
+                const renderCharts = (data) => {
+                    // 雷达图
+                    const radarChart = echarts.init(document.getElementById('radarChart'));
+                    const dimensions = Object.keys(data.dimension_scores);
+                    const scores = Object.values(data.dimension_scores);
+                    
+                    radarChart.setOption({
+                        title: { text: '维度得分分析', left: 'center' },
+                        radar: {
+                            indicator: dimensions.map(d => ({ name: d, max: 100 })),
+                            radius: '65%'
+                        },
+                        series: [{
+                            type: 'radar',
+                            data: [{
+                                value: scores,
+                                name: '得分',
+                                areaStyle: { color: 'rgba(102, 126, 234, 0.3)' },
+                                lineStyle: { color: '#667eea' }
+                            }]
+                        }]
+                    });
+
+                    // 饼图
+                    const pieChart = echarts.init(document.getElementById('pieChart'));
+                    pieChart.setOption({
+                        title: { text: '评估项分布', left: 'center' },
+                        series: [{
+                            type: 'pie',
+                            radius: '50%',
+                            data: [
+                                { value: data.level_distribution.compliant, name: '符合' },
+                                { value: data.level_distribution.partial, name: '部分符合' },
+                                { value: data.level_distribution.non_compliant, name: '不符合' },
+                                { value: data.level_distribution.not_applicable, name: '不适用' }
+                            ],
+                            emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)' } }
+                        }]
+                    });
+                };
+
+                // 生命周期
+                onMounted(() => {
+                    fetchTasks();
+                    fetchTemplates();
+                    fetchStats();
+                });
+
+                return {
+                    currentView,
+                    sidebarOpen,
+                    tasks,
+                    templates,
+                    currentTask,
+                    currentTaskItems,
+                    currentTaskResult,
+                    creating,
+                    stats,
+                    newTask,
+                    selectedTemplateDescription,
+                    createTask,
+                    openTask,
+                    deleteTask,
+                    closeSidebar,
+                    selectTemplate,
+                    onViewChange,
+                    getComplianceType,
+                    getStatusLabel,
+                    getRatingType,
+                    saveItemRating
+                };
+            }
+        });
+
+        app.use(ElementPlus, { locale: ElementPlusLocaleZhCn });
+        app.mount('#app');
+    </script>
+</body>
+</html>
