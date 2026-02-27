@@ -1,0 +1,43 @@
+{
+  "id": "djcp_data",
+  "name": "网络安全等级保护数据安全基本要求",
+  "standard_no": "GB/T 22239-2019 数据安全部分",
+  "version": "2019",
+  "description": "网络安全等级保护 2.0 数据安全基本要求，涵盖数据全生命周期安全保护，适用于各等级信息系统",
+  "dimensions": [
+    {"id": "data_classify", "name": "数据分类分级", "weight": 0.15, "description": "建立数据分类分级管理制度，识别重要数据和核心数据"},
+    {"id": "data_collect", "name": "数据采集安全", "weight": 0.15, "description": "规范数据采集目的、范围，遵循最小必要原则"},
+    {"id": "data_transfer", "name": "数据传输安全", "weight": 0.15, "description": "采用加密传输、安全协议保护数据传输安全"},
+    {"id": "data_store", "name": "数据存储安全", "weight": 0.15, "description": "实施数据加密存储、备份恢复、介质安全管理"},
+    {"id": "data_use", "name": "数据使用安全", "weight": 0.15, "description": "建立访问控制、权限管理、数据脱敏、审计监控机制"},
+    {"id": "data_share", "name": "数据交换共享", "weight": 0.15, "description": "规范数据共享、转让流程，进行安全评估和审计追溯"},
+    {"id": "data_delete", "name": "数据销毁安全", "weight": 0.10, "description": "建立数据销毁制度，采用不可恢复的销毁方式"}
+  ],
+  "levels": {
+    "二级": {
+      "description": "指导保护级 - 适用于重要信息系统",
+      "item_count": 18
+    },
+    "三级": {
+      "description": "监督保护级 - 适用于关键信息基础设施",
+      "item_count": 27
+    }
+  },
+  "compliance_requirements": {
+    "二级": {
+      "min_compliance_rate": 80,
+      "description": "合规率需达到 80% 以上"
+    },
+    "三级": {
+      "min_compliance_rate": 90,
+      "description": "合规率需达到 90% 以上"
+    }
+  },
+  "implementation_guide": {
+    "step1": "确定评估对象和范围",
+    "step2": "选择对应的等保级别（二级/三级）",
+    "step3": "逐项评估并记录证据",
+    "step4": "计算合规率并生成报告",
+    "step5": "制定整改计划"
+  }
+}
