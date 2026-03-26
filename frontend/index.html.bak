@@ -422,7 +422,275 @@
         </div>
     </div>
 
-    <!-- 应用脚本 -->
-    <script src="app.js"></script>
+    <script>
+        const { createApp, ref, computed, onMounted, watch } = Vue;
+
+        const API_BASE = 'http://localhost:8001/api';
+
+        const app = createApp({
+            setup() {
+                // 状态
+                const currentView = ref('tasks');
+                const sidebarOpen = ref(false);
+                const tasks = ref([]);
+                const templates = ref([]);
+                const currentTask = ref(null);
+                const currentTaskItems = ref([]);
+                const currentTaskResult = ref(null);
+                const creating = ref(false);
+                const stats = ref({ total_tasks: 0, completed_tasks: 0, in_progress_tasks: 0 });
+
+                const newTask = ref({
+                    name: '',
+                    organization: '',
+                    template_id: ''
+                });
+
+                // 计算属性
+                const selectedTemplateDescription = computed(() => {
+                    const tpl = templates.value.find(t => t.id === newTask.value.template_id);
+                    return tpl ? tpl.description : '';
+                });
+
+                // 方法
+                const fetchTasks = async () => {
+                    try {
+                        const res = await fetch(`${API_BASE}/tasks`);
+                        const data = await res.json();
+                        tasks.value = data;
+                    } catch (e) {
+                        console.error('获取任务失败:', e);
+                    }
+                };
+
+                const fetchTemplates = async () => {
+                    try {
+                        const res = await fetch(`${API_BASE}/templates`);
+                        const data = await res.json();
+                        templates.value = data;
+                    } catch (e) {
+                        console.error('获取模板失败:', e);
+                    }
+                };
+
+                const fetchStats = async () => {
+                    try {
+                        const res = await fetch(`${API_BASE}/stats`);
+                        const data = await res.json();
+                        stats.value = data;
+                    } catch (e) {
+                        console.error('获取统计失败:', e);
+                    }
+                };
+
+                const createTask = async () => {
+                    if (!newTask.value.name || !newTask.value.template_id) {
+                        ElementPlus.ElMessage.warning('请填写任务名称和评估标准');
+                        return;
+                    }
+                    creating.value = true;
+                    try {
+                        const res = await fetch(`${API_BASE}/tasks`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(newTask.value)
+                        });
+                        const data = await res.json();
+                        if (res.ok) {
+                            ElementPlus.ElMessage.success('评估任务创建成功');
+                            newTask.value = { name: '', organization: '', template_id: '' };
+                            currentView.value = 'tasks';
+                            fetchTasks();
+                        } else {
+                            ElementPlus.ElMessage.error(data.detail || '创建失败');
+                        }
+                    } catch (e) {
+                        ElementPlus.ElMessage.error('网络错误');
+                    } finally {
+                        creating.value = false;
+                    }
+                };
+
+                const openTask = async (task) => {
+                    try {
+                        const res = await fetch(`${API_BASE}/tasks/${task.id}`);
+                        const data = await res.json();
+                        currentTask.value = data;
+                        currentTaskItems.value = data.items || [];
+                        sidebarOpen.value = true;
+                        
+                        // 获取结果分析
+                        fetchTaskResult(task.id);
+                    } catch (e) {
+                        ElementPlus.ElMessage.error('获取任务详情失败');
+                    }
+                };
+
+                const fetchTaskResult = async (taskId) => {
+                    try {
+                        const res = await fetch(`${API_BASE}/tasks/${taskId}/result`);
+                        const data = await res.json();
+                        currentTaskResult.value = data;
+                        renderCharts(data);
+                    } catch (e) {
+                        console.error('获取结果失败:', e);
+                    }
+                };
+
+                const saveItemRating = async (item) => {
+                    try {
+                        await fetch(`${API_BASE}/tasks/${currentTask.value.id}/items/${item.id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                rating: item.rating,
+                                evidence: item.evidence,
+                                remarks: item.remarks
+                            })
+                        });
+                        // 刷新任务数据
+                        const res = await fetch(`${API_BASE}/tasks/${currentTask.value.id}`);
+                        const data = await res.json();
+                        currentTask.value = data;
+                        currentTaskItems.value = data.items;
+                        fetchTaskResult(currentTask.value.id);
+                        fetchTasks();
+                    } catch (e) {
+                        console.error('保存失败:', e);
+                    }
+                };
+
+                const deleteTask = async (taskId) => {
+                    ElementPlus.ElMessageBox.confirm('确定要删除此评估任务吗？', '确认删除', {
+                        type: 'warning'
+                    }).then(async () => {
+                        try {
+                            await fetch(`${API_BASE}/tasks/${taskId}`, { method: 'DELETE' });
+                            ElementPlus.ElMessage.success('删除成功');
+                            fetchTasks();
+                        } catch (e) {
+                            ElementPlus.ElMessage.error('删除失败');
+                        }
+                    });
+                };
+
+                const closeSidebar = () => {
+                    sidebarOpen.value = false;
+                    currentTask.value = null;
+                    currentTaskItems.value = [];
+                };
+
+                const selectTemplate = (tpl) => {
+                    newTask.value.template_id = tpl.id;
+                };
+
+                const onViewChange = (view) => {
+                    if (view === 'stats' && currentTask.value) {
+                        fetchTaskResult(currentTask.value.id);
+                    }
+                };
+
+                const getComplianceType = (rate) => {
+                    if (rate >= 80) return 'success';
+                    if (rate >= 60) return 'warning';
+                    return 'danger';
+                };
+
+                const getStatusLabel = (status) => {
+                    const labels = {
+                        draft: '草稿',
+                        in_progress: '进行中',
+                        completed: '已完成'
+                    };
+                    return labels[status] || status;
+                };
+
+                const getRatingType = (rating) => {
+                    const types = {
+                        compliant: 'success',
+                        partial: 'warning',
+                        non_compliant: 'danger',
+                        not_applicable: 'info'
+                    };
+                    return types[rating] || 'info';
+                };
+
+                const renderCharts = (data) => {
+                    // 雷达图
+                    const radarChart = echarts.init(document.getElementById('radarChart'));
+                    const dimensions = Object.keys(data.dimension_scores);
+                    const scores = Object.values(data.dimension_scores);
+                    
+                    radarChart.setOption({
+                        title: { text: '维度得分分析', left: 'center' },
+                        radar: {
+                            indicator: dimensions.map(d => ({ name: d, max: 100 })),
+                            radius: '65%'
+                        },
+                        series: [{
+                            type: 'radar',
+                            data: [{
+                                value: scores,
+                                name: '得分',
+                                areaStyle: { color: 'rgba(102, 126, 234, 0.3)' },
+                                lineStyle: { color: '#667eea' }
+                            }]
+                        }]
+                    });
+
+                    // 饼图
+                    const pieChart = echarts.init(document.getElementById('pieChart'));
+                    pieChart.setOption({
+                        title: { text: '评估项分布', left: 'center' },
+                        series: [{
+                            type: 'pie',
+                            radius: '50%',
+                            data: [
+                                { value: data.level_distribution.compliant, name: '符合' },
+                                { value: data.level_distribution.partial, name: '部分符合' },
+                                { value: data.level_distribution.non_compliant, name: '不符合' },
+                                { value: data.level_distribution.not_applicable, name: '不适用' }
+                            ],
+                            emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)' } }
+                        }]
+                    });
+                };
+
+                // 生命周期
+                onMounted(() => {
+                    fetchTasks();
+                    fetchTemplates();
+                    fetchStats();
+                });
+
+                return {
+                    currentView,
+                    sidebarOpen,
+                    tasks,
+                    templates,
+                    currentTask,
+                    currentTaskItems,
+                    currentTaskResult,
+                    creating,
+                    stats,
+                    newTask,
+                    selectedTemplateDescription,
+                    createTask,
+                    openTask,
+                    deleteTask,
+                    closeSidebar,
+                    selectTemplate,
+                    onViewChange,
+                    getComplianceType,
+                    getStatusLabel,
+                    getRatingType,
+                    saveItemRating
+                };
+            }
+        });
+
+        app.use(ElementPlus, { locale: ElementPlusLocaleZhCn });
+        app.mount('#app');
+    </script>
 </body>
 </html>

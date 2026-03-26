@@ -1,83 +1,185 @@
-# 标准智能评估系统
+# 标准自评估系统 (Standards Self-Assessment System)
 
-基于大模型的标准条款智能拆解与评估系统。
+[![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-在线访问-blue)](https://8004009-wq.github.io/standards-assessment/)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-## 功能特性
+## 🌐 在线访问
 
-- **评估模版管理**：上传 PDF/Word 标准文件，大模型智能拆解条款
-- **Excel 导入**：支持 Excel 导入条款及业务现状，快速创建评估任务
-- **评估任务**：创建评估任务，大模型自动评估条款符合性
-- **智能评分**：符合 (1 分)、部分符合 (0.6 分)、不符合 (0 分)、不适用 (不计分)
-- **等级评定**：优秀 (85-100)、良好 (75-85)、合格 (60-74)、不合格 (0-59)
-- **统计分析**：总体评估情况、等级分布
-- **报告生成**：自动生成评估报告
+**GitHub Pages 演示版**: https://8004009-wq.github.io/standards-assessment/
 
-## 技术栈
+> 💡 演示版使用浏览器 localStorage 存储数据，无需后端即可体验完整功能。数据仅保存在本地浏览器中。
 
-- **后端**：FastAPI + SQLAlchemy + SQLite
-- **前端**：Vue3 + Element Plus + Vite
-- **大模型**：DashScope Qwen3.5-Plus
+## 📋 项目概述
 
-## 快速启动
+一个通用的标准自评估平台，支持多种网络安全、数据安全标准的在线评估、评分和报告生成。
 
-### 1. 配置环境变量
+## ✨ 核心功能
 
-```bash
-export DASHSCOPE_API_KEY="your-api-key"
+### 1. 评估管理
+- 创建新的评估任务
+- 选择评估标准模板（等保 2.0、DSMM、个人信息保护等）
+- 保存评估进度
+- 历史评估记录查看
+
+### 2. 在线评估
+- 按维度/控制项展示评估内容
+- 支持符合性判断（符合/部分符合/不符合/不适用）
+- 支持证据上传和备注
+- 自动保存进度
+
+### 3. 智能评分
+- 自动计算各维度得分
+- 计算总体合规率
+- 生成可视化图表（雷达图、柱状图）
+- 识别薄弱环节
+
+### 4. 报告导出
+- 生成 PDF 评估报告
+- 导出 Excel 详细数据
+- 生成改进建议清单
+
+## 🏗️ 系统架构
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                      前端 (Vue 3)                        │
+│  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌─────────┐ │
+│  │ 评估任务  │ │ 在线评估  │ │ 结果分析  │ │ 报告导出│ │
+│  └───────────┘ └───────────┘ └───────────┘ └─────────┘ │
+└─────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│                    后端 (FastAPI)                        │
+│  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌─────────┐ │
+│  │ REST API  │ │ 评分引擎  │ │ 报告生成  │ │ 数据管理│ │
+│  └───────────┘ └───────────┘ └───────────┘ └─────────┘ │
+└─────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────┐
+│                    数据存储                              │
+│  ┌───────────┐ ┌───────────┐ ┌───────────┐             │
+│  │  SQLite   │ │  模板库   │ │  评估记录 │             │
+│  └───────────┘ └───────────┘ └───────────┘             │
+└─────────────────────────────────────────────────────────┘
 ```
 
-### 2. 启动后端
+## 📚 支持的标准模板
+
+| 模板 ID | 标准编号 | 标准名称 | 维度数 | 评估项数 | 适用级别 |
+|--------|---------|---------|-------|---------|---------|
+| dsmm | GB/T 37988-2019 | DSMM 数据安全能力成熟度模型 | 4 | 21 | 1-5 级 |
+| djcp | GB/T 22239-2019 | 等保 2.0 基本要求 | 2 | 22 | 二级 |
+| grxxb | GB/T 35273-2020 | 个人信息安全规范 | 5 | 15 | 基础 |
+| **djcp_data_level1** | **GA/T 2380-2026** | **信息安全技术 网络安全等级保护数据安全基本要求（第一级）** | **7** | **10** | **一级** |
+| **djcp_data** | **GA/T 2380-2026** | **信息安全技术 网络安全等级保护数据安全基本要求（第三级）** | **7** | **45** | **三级** |
+
+### 🎯 等保数据安全评估
+
+#### 第一级（自主保护级）
+
+- **标准编号**: GA/T 2380-2026
+- **评估项**: 10 项（4.1-4.8）
+- **合规率要求**: ≥80%
+- **评估周期**: 每 2 年至少 1 次
+- **适用范围**: 一般信息系统
+
+#### 第三级（监督保护级）
+
+- **标准编号**: GA/T 2380-2026
+- **评估项**: 45 项
+- **合规率要求**: ≥90%
+- **关键项**: 必须 100% 符合
+- **评估周期**: 每年至少 1 次
+- **适用范围**: 关键信息基础设施、重要信息系统
+
+**评估选项**: 符合、部分符合、不符合、不适用
+
+快速创建三级评估任务:
+```bash
+python3 scripts/create_level3_task.py "XX 系统等保三级评估" "XX 公司"
+```
+
+## 🚀 快速启动
+
+### 方式一：本地开发
 
 ```bash
+# 启动后端
 cd backend
 pip install -r requirements.txt
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn main:app --reload --port 8001
+
+# 启动前端（新终端）
+cd frontend
+python3 -m http.server 8080
 ```
 
-### 3. 启动前端
+### 方式二：一键启动
 
 ```bash
-cd frontend
-npm install
-npm run dev
+./start.sh
 ```
 
-### 4. 访问系统
+### 方式三：使用 Docker
 
-浏览器打开：http://localhost:3000
+```bash
+cd standards-assessment
+docker-compose up -d
+```
 
-首次使用请注册账号。
+### 访问地址
 
-## API 接口
+- 前端界面：http://localhost:8080
+- 后端 API: http://localhost:8001
+- API 文档：http://localhost:8001/docs
 
-- `POST /api/auth/register` - 用户注册
-- `POST /api/auth/login` - 用户登录
-- `POST /api/templates/upload` - 上传标准并拆解条款
-- `GET /api/templates` - 获取模版列表
-- `POST /api/tasks` - 创建评估任务
-- `POST /api/tasks/excel` - Excel 导入创建评估任务（含条款及业务现状）
-- `POST /api/tasks/{id}/assess` - 执行智能评估
-- `GET /api/tasks` - 获取任务列表
-- `GET /api/stats/overview` - 获取统计概览
-- `GET /api/tasks/{id}/report` - 生成评估报告
+## 🌐 GitHub Pages 部署
 
-## 目录结构
+1. 启用 GitHub Pages（Settings → Pages → Source: gh-pages branch）
+2. 推送前端到 gh-pages 分支：
+```bash
+git subtree push --prefix standards-assessment/frontend origin gh-pages
+```
+3. 访问：https://<your-username>.github.io/<repo>/standards-assessment/
+
+## 📁 项目结构
 
 ```
-standard-assessment-system/
-├── backend/
-│   ├── app/
-│   │   ├── api/          # API 路由
-│   │   ├── models/       # 数据库模型
-│   │   ├── services/     # 业务逻辑 (LLM 服务)
-│   │   └── main.py       # FastAPI 入口
-│   ├── uploads/          # 上传的标准文件
-│   ├── reports/          # 生成的报告
-│   └── requirements.txt
-└── frontend/
-    ├── src/
-    │   ├── views/        # 页面组件
-    │   ├── router/       # 路由配置
-    │   └── App.vue
-    └── package.json
+standards-assessment/
+├── frontend/              # 前端代码
+│   ├── index.html        # 主页面
+│   ├── app.js            # Vue 应用
+│   ├── components/       # 组件
+│   └── styles/           # 样式
+├── backend/              # 后端代码
+│   ├── main.py          # FastAPI 入口
+│   ├── models.py        # 数据模型
+│   ├── templates.py     # 标准模板
+│   └── requirements.txt # 依赖
+├── templates/            # 标准模板文件
+│   ├── dsmm.json
+│   ├── djcp.json
+│   └── grxxb.json
+├── data/                 # 数据目录
+│   └── assessments.db   # SQLite 数据库
+├── docs/                 # 文档
+├── README.md
+└── start.sh             # 启动脚本
 ```
+
+## 🔧 技术栈
+
+- **前端**: Vue 3 + Element Plus + ECharts
+- **后端**: Python + FastAPI
+- **数据库**: SQLite (可切换 PostgreSQL)
+- **部署**: GitHub Pages + 任意后端托管
+
+## 📝 许可证
+
+MIT License
+
+## 👥 贡献
+
+欢迎提交 Issue 和 Pull Request！
